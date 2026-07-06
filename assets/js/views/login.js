@@ -8,13 +8,13 @@ export function renderLogin(container, { errorMessage } = {}) {
     <div class="login-screen">
       <div class="nova-burst" aria-hidden="true"></div>
       <div class="login-card">
-        <p class="eyebrow">Steuerzentrale</p>
+        <p class="eyebrow">Dashboard</p>
         <h1>${botName} Dashboard</h1>
-        <p class="lead">Melde dich mit Discord an, um deine Server zu verwalten.</p>
+        <p class="lead">Sign in with Discord to manage your servers. Nova AI also supports text commands in your server.</p>
         ${errorMessage ? `<div class="banner banner-error">${escapeHtml(errorMessage)}</div>` : ''}
         
         <p class="captcha-hint" style="font-size: 0.8rem; color: var(--text-faint); margin-bottom: 8px;">
-          Siehst du hier kein Sicherheits-Captcha? Deaktiviere eventuell deinen Werbeblocker oder lade die Seite neu.
+          Don't you see a security captcha here? Please re-re-ead the page. 🙄
         </p>
 
         <div
@@ -25,15 +25,14 @@ export function renderLogin(container, { errorMessage } = {}) {
           data-expired-callback="__novaOnTurnstileExpired"
         ></div>
         
-        <button id="discord-login-btn" class="btn btn-primary" disabled>Mit Discord anmelden</button>
+        <button id="discord-login-btn" class="btn btn-primary" disabled>Sign in with Discord</button>
         
         <button id="back-home-btn" class="btn btn-ghost" style="width: 100%; margin-top: 12px;">
-          Zurück zur Startseite
+          Back to homepage
         </button>
 
         <p class="fine-print">
-          Wir lesen nur deinen Discord-Benutzernamen und deine Server-Mitgliedschaften —
-          keine Nachrichten, keine E-Mail-Adresse.
+          We only read your Discord username and server memberships, no messages, no email address. Currently, our dashboard is only available in English. I hope you can cope with this.
         </p>
       </div>
     </div>
