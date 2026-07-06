@@ -9,7 +9,7 @@ window.NOVA_CONFIG = {
   WORKER_URL: 'https://novadashboardworker.sandrorobloxcreations.workers.dev',
 
   // Aus dem Discord Developer Portal -> OAuth2 -> General -> Client ID
-  DISCORD_CLIENT_ID: '1414615828342509628',
+  DISCORD_CLIENT_ID: '1516309601346129920',
 
   // Muss EXAKT der URL entsprechen, die du im Discord Developer Portal unter
   // OAuth2 -> Redirects eingetragen hast, UND dem DISCORD_REDIRECT_URI im Worker.
