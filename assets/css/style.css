@@ -1,0 +1,608 @@
+/* ---------------------------------------------------------------------- */
+/* Nova AI Dashboard — Design-Tokens                                      */
+/* Idee: "Missionskontrolle" fuer deinen Bot. Tiefes Weltraum-Navy als     */
+/* Basis, ein warmer "Nova"-Farbverlauf markiert alles Aktive/Positive,    */
+/* ein kuehles Blau markiert Zugriff/Information. Ein wiederkehrendes      */
+/* radiales "Nova-Burst"-Glow ist das einzige wiederkehrende Signature-    */
+/* Element (Login-Hintergrund, aktive Badges, Ladezustand).                */
+/* ---------------------------------------------------------------------- */
+
+:root {
+  --bg: #0b0f1a;
+  --bg-elevated: #131826;
+  --surface: #1a2133;
+  --surface-hover: #212a40;
+  --border: #2a3348;
+  --text: #e7eaf3;
+  --text-dim: #8b93a7;
+  --text-faint: #5b6478;
+
+  --nova: #ff6b4a;
+  --nova-2: #ffb84d;
+  --cold: #6c8cff;
+  --danger: #ff5470;
+  --success: #35d399;
+  --warn: #ffd166;
+
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app-root {
+  min-height: 100vh;
+}
+
+a {
+  color: var(--cold);
+}
+
+h1,
+h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  margin: 0 0 4px;
+  letter-spacing: -0.01em;
+}
+
+h1 {
+  font-size: 1.9rem;
+}
+
+h2 {
+  font-size: 1.2rem;
+  margin-top: 0;
+}
+
+.lead {
+  color: var(--text-dim);
+  margin: 0 0 20px;
+}
+
+.fine-print {
+  color: var(--text-faint);
+  font-size: 0.8rem;
+  margin-top: 18px;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.72rem;
+  color: var(--nova-2);
+  margin: 0 0 10px;
+}
+
+/* Fokus-Sichtbarkeit ueberall, respektiert reduzierte Bewegungswuensche */
+:focus-visible {
+  outline: 2px solid var(--nova-2);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Boot / Loading                                                         */
+/* ---------------------------------------------------------------------- */
+
+.boot-loading,
+.loading {
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 40px 0;
+}
+
+.boot-loading {
+  min-height: 100vh;
+  justify-content: center;
+}
+
+.boot-loading::before,
+.loading::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--nova-2), var(--nova) 70%);
+  animation: nova-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes nova-pulse {
+  0%,
+  100% {
+    transform: scale(0.85);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.25);
+    opacity: 1;
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Login                                                                  */
+/* ---------------------------------------------------------------------- */
+
+.login-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: 24px;
+}
+
+.nova-burst {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(600px 600px at 50% 20%, rgba(255, 107, 74, 0.16), transparent 60%),
+    radial-gradient(400px 400px at 80% 80%, rgba(108, 140, 255, 0.1), transparent 60%);
+  pointer-events: none;
+}
+
+.login-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 36px 32px;
+  box-shadow: var(--shadow-card);
+  text-align: center;
+}
+
+.turnstile-widget {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0 16px;
+  min-height: 65px;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Topbar                                                                  */
+/* ---------------------------------------------------------------------- */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 28px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-elevated);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.brand {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+}
+
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+}
+
+.content {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 36px 28px 80px;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Buttons                                                                 */
+/* ---------------------------------------------------------------------- */
+
+.btn {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.92rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: transform 0.12s ease, filter 0.12s ease, background 0.12s ease;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn:not(:disabled):hover {
+  filter: brightness(1.08);
+}
+
+.btn:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+.btn-primary {
+  width: 100%;
+  background: linear-gradient(135deg, var(--nova), var(--nova-2));
+  color: #1a0f08;
+}
+
+.btn-secondary {
+  background: var(--cold);
+  color: #0c1230;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+}
+
+.btn-ghost:not(:disabled):hover {
+  color: var(--text);
+  border-color: var(--text-dim);
+}
+
+.btn-danger-ghost {
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid rgba(255, 84, 112, 0.35);
+  padding: 8px 14px;
+  font-size: 0.82rem;
+}
+
+.btn-danger-ghost:not(:disabled):hover {
+  background: rgba(255, 84, 112, 0.1);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Banners                                                                 */
+/* ---------------------------------------------------------------------- */
+
+.banner {
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 0.88rem;
+  margin: 14px 0;
+  text-align: left;
+}
+
+.banner-error {
+  background: rgba(255, 84, 112, 0.12);
+  border: 1px solid rgba(255, 84, 112, 0.35);
+  color: #ffb4c2;
+}
+
+.banner-success {
+  background: rgba(53, 211, 153, 0.12);
+  border: 1px solid rgba(53, 211, 153, 0.35);
+  color: #9df0d4;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Server-Grid                                                             */
+/* ---------------------------------------------------------------------- */
+
+.server-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.server-card {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  text-align: left;
+}
+
+.server-card.is-clickable {
+  cursor: pointer;
+  border-left: 3px solid var(--nova);
+  transition: background 0.12s ease, transform 0.12s ease;
+}
+
+.server-card.is-clickable:hover {
+  background: var(--surface-hover);
+  transform: translateY(-1px);
+}
+
+.server-card.is-disabled {
+  opacity: 0.55;
+  border-left: 3px solid var(--border);
+}
+
+.server-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  object-fit: cover;
+  border: 1px solid var(--border);
+}
+
+.server-icon-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-elevated);
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.server-card-body h2 {
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.badge {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+
+.status-active {
+  color: var(--nova-2);
+  border-color: rgba(255, 184, 77, 0.4);
+  background: rgba(255, 107, 74, 0.08);
+}
+
+.status-inactive {
+  color: var(--text-faint);
+}
+
+.access-admin {
+  color: var(--cold);
+  border-color: rgba(108, 140, 255, 0.4);
+  background: rgba(108, 140, 255, 0.08);
+}
+
+.access-none {
+  color: var(--text-faint);
+}
+
+.hint {
+  margin: 8px 0 0;
+  font-size: 0.78rem;
+  color: var(--text-faint);
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-dim);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Server-Settings                                                         */
+/* ---------------------------------------------------------------------- */
+
+.settings-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 26px;
+}
+
+.settings-head .server-icon,
+.settings-head .server-icon-fallback {
+  width: 56px;
+  height: 56px;
+}
+
+.status-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.pill {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+
+.settings-form {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  margin-bottom: 28px;
+}
+
+.field-group {
+  margin-bottom: 20px;
+}
+
+.field-group:last-of-type {
+  margin-bottom: 24px;
+}
+
+.field-group label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.88rem;
+  margin-bottom: 8px;
+}
+
+.field-hint {
+  color: var(--text-faint);
+  font-size: 0.78rem;
+  margin: 6px 0 0;
+}
+
+select,
+input[type='text'],
+input[type='password'],
+textarea {
+  width: 100%;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: var(--radius-sm);
+  padding: 11px 13px;
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+}
+
+select:focus,
+input:focus,
+textarea:focus {
+  border-color: var(--cold);
+}
+
+.custom-textarea {
+  margin-top: 12px;
+  min-height: 110px;
+  resize: vertical;
+}
+
+.custom-textarea.is-hidden {
+  display: none;
+}
+
+.api-keys-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 24px;
+}
+
+.key-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.key-row:last-child {
+  border-bottom: none;
+}
+
+.key-position {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--nova-2);
+  min-width: 62px;
+}
+
+.key-label {
+  flex: 1;
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.empty-state-inline {
+  color: var(--text-faint);
+  font-size: 0.88rem;
+}
+
+.add-key-form {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.add-key-form input {
+  flex: 1;
+  min-width: 160px;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Responsive                                                              */
+/* ---------------------------------------------------------------------- */
+
+@media (max-width: 560px) {
+  .content {
+    padding: 24px 16px 60px;
+  }
+
+  .topbar {
+    padding: 14px 16px;
+  }
+
+  .login-card {
+    padding: 28px 20px;
+  }
+
+  .add-key-form {
+    flex-direction: column;
+  }
+}
