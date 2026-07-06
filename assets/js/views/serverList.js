@@ -13,14 +13,14 @@ export async function renderServerList(container) {
       <div class="user-chip">
         ${payload?.avatar ? `<img src="${escapeHtml(payload.avatar)}" alt="" class="avatar" />` : ''}
         <span>${escapeHtml(payload?.username || '')}</span>
-        <button id="logout-btn" class="btn btn-ghost">Log out</button>
+        <button id="logout-btn" class="btn btn-ghost">Abmelden</button>
       </div>
     </header>
     <main class="content">
       <h1>Deine Server</h1>
-      <p class="lead">Choose a server where you are an administrator and ${botName} is active.</p>
+      <p class="lead">Wähle einen Server, auf dem du Administrator bist und ${botName} aktiv ist.</p>
       <div id="banner-slot"></div>
-      <div id="server-grid" class="server-grid"><div class="loading">Servers are being loaded...</div></div>
+      <div id="server-grid" class="server-grid"><div class="loading">Lade Server…</div></div>
     </main>
   `;
 
@@ -45,7 +45,7 @@ function handleListError(err, bannerSlot, grid) {
   grid.innerHTML = '';
 
   if (err instanceof ApiError && (err.status === 401 || err.code === 'session_expired')) {
-    bannerSlot.innerHTML = `<div class="banner banner-error">Session expired. You will be redirected to the enrolment...</div>`;
+    bannerSlot.innerHTML = `<div class="banner banner-error">Sitzung abgelaufen. Du wirst zur Anmeldung weitergeleitet…</div>`;
     setTimeout(() => {
       window.location.hash = '';
       window.location.reload();
@@ -59,7 +59,7 @@ function handleListError(err, bannerSlot, grid) {
   }
 
   bannerSlot.innerHTML = `<div class="banner banner-error">${escapeHtml(
-    err.message || 'Your servers could not be loaded. Please reload page. If it still doesn't work, it's due to server problems. A little tip: Nova AI can also be managed in your server via text commands.'
+    err.message || 'Server konnten nicht geladen werden. Bitte Seite neu laden.'
   )}</div>`;
 }
 
@@ -67,7 +67,7 @@ function renderGrid(grid, guilds) {
   const botName = escapeHtml(window.NOVA_CONFIG.BOT_NAME);
 
   if (!guilds || guilds.length === 0) {
-    grid.innerHTML = `<div class="empty-state">You are not on any server that ${botName} could manage.</div>`;
+    grid.innerHTML = `<div class="empty-state">Du bist auf keinem Server, den ${botName} verwalten könnte.</div>`;
     return;
   }
 
@@ -91,9 +91,9 @@ function renderGrid(grid, guilds) {
 function renderCard(g, botName) {
   const clickable = g.botPresent && g.isAdmin;
 
-  const statusLabel = g.botPresent ? `${botName} active` : `${botName} inactive`;
+  const statusLabel = g.botPresent ? `${botName} aktiv` : `${botName} nicht aktiv`;
   const statusClass = g.botPresent ? 'status-active' : 'status-inactive';
-  const accessLabel = g.isAdmin ? 'Administrator' : 'No Access';
+  const accessLabel = g.isAdmin ? 'Administrator' : 'Kein Zugriff';
   const accessClass = g.isAdmin ? 'access-admin' : 'access-none';
 
   const icon = g.icon
@@ -101,7 +101,7 @@ function renderCard(g, botName) {
     : `<div class="server-icon server-icon-fallback">${escapeHtml((g.name || '?').slice(0, 1).toUpperCase())}</div>`;
 
   const hint = !clickable
-    ? `<p class="hint">${!g.botPresent ? `${botName} must be invited first.` : 'Only administrators can change settings.'}</p>`
+    ? `<p class="hint">${!g.botPresent ? `${botName} muss zuerst eingeladen werden.` : 'Nur Administratoren können Einstellungen ändern.'}</p>`
     : '';
 
   return `
