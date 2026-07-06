@@ -6,17 +6,17 @@
 
 window.NOVA_CONFIG = {
   // URL deines deployten Cloudflare Workers, OHNE abschliessenden Slash.
-  WORKER_URL: 'https://nova-ai-dashboard-worker.DEIN-SUBDOMAIN.workers.dev',
+  WORKER_URL: 'https://novadashboardworker.sandrorobloxcreations.workers.dev',
 
   // Aus dem Discord Developer Portal -> OAuth2 -> General -> Client ID
-  DISCORD_CLIENT_ID: 'DEINE_DISCORD_CLIENT_ID',
+  DISCORD_CLIENT_ID: '1414615828342509628',
 
   // Muss EXAKT der URL entsprechen, die du im Discord Developer Portal unter
   // OAuth2 -> Redirects eingetragen hast, UND dem DISCORD_REDIRECT_URI im Worker.
-  DISCORD_REDIRECT_URI: 'https://nova-ai-dashboard-worker.DEIN-SUBDOMAIN.workers.dev/auth/callback',
+  DISCORD_REDIRECT_URI: 'https://novadashboardworker.sandrorobloxcreations.workers.dev/auth/callback',
 
   // Aus Cloudflare Dashboard -> Turnstile -> dein Widget -> Site Key
-  TURNSTILE_SITE_KEY: 'DEIN_TURNSTILE_SITE_KEY',
+  TURNSTILE_SITE_KEY: '0x4AAAAAADwWPzWVf0aUyH7y',
 
   // Anzeigename deines Bots im Dashboard
   BOT_NAME: 'Nova AI',
