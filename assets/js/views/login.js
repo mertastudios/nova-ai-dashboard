@@ -44,7 +44,7 @@ export function renderLogin(container, { errorMessage } = {}) {
 
   // Event Listener für den Zurück-Button (leitet zur Startseite weiter)
   backButton.addEventListener('click', () => {
-    window.location.href = '/';
+    window.location.href = '/nova/';
   });
 
   window.__novaOnTurnstileSuccess = (token) => {
