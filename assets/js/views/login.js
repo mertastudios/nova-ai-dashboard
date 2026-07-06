@@ -1,50 +1,192 @@
 import { buildDiscordLoginUrl } from '../auth.js';
 import { escapeHtml } from '../utils.js';
 
+const TURNSTILE_TIMEOUT = 12000; // 12 s before we show a retry option
+
 export function renderLogin(container, { errorMessage } = {}) {
-  const botName = escapeHtml(window.NOVA_CONFIG?.BOT_NAME || 'Nova AI');
-  const siteKey = window.NOVA_CONFIG?.TURNSTILE_SITE_KEY || '';
+  const botName  = escapeHtml(window.NOVA_CONFIG?.BOT_NAME       || 'Nova AI');
+  const siteKey  = window.NOVA_CONFIG?.TURNSTILE_SITE_KEY         || '';
   let turnstileToken = null;
+  let widgetId       = null;
+  let timeoutHandle  = null;
 
   container.innerHTML = `
-    <div class="login-screen" style="height: 100vh; display: flex; align-items: center; justify-content: center;">
+    <div class="login-page">
       <div class="login-card">
-        <span class="eyebrow" style="text-transform: uppercase; letter-spacing: 2px; color: var(--nova-2); font-size: 0.8rem;">Control Center</span>
-        <h1 style="margin: 10px 0;">${botName}</h1>
-        <p class="lead" style="margin-bottom: 30px; color: var(--text-dim);">Log in with Discord to manage your servers and AI settings.</p>
-        
-        ${errorMessage ? `<div style="color: var(--danger); margin-bottom: 20px;">${escapeHtml(errorMessage)}</div>` : ''}
-        
-        <div id="turnstile-status" style="font-size: 0.8rem; color: var(--text-faint); margin-bottom: 10px;">Loading security check...</div>
-        <div id="turnstile-widget" class="cf-turnstile" style="margin-bottom: 20px; display: flex; justify-content: center;"></div>
-        
-        <div style="display: flex; flex-direction: column; gap: 10px;">
-          <button id="discord-login-btn" class="btn btn-primary" disabled>Login with Discord</button>
-          <button id="back-home-btn" class="btn btn-ghost">Back to Home</button>
+        <div class="login-orb"></div>
+
+        <p class="login-eyebrow">Control Center</p>
+        <h1 class="gradient-text">${botName}</h1>
+        <p class="login-lead">
+          Sign in with your Discord account to manage your servers
+          and configure AI settings.
+        </p>
+
+        ${errorMessage ? `
+          <div class="banner banner-error" style="margin-bottom:20px;text-align:left">
+            ${escapeHtml(errorMessage)}
+          </div>` : ''}
+
+        <!-- Turnstile -->
+        <div class="turnstile-wrap">
+          <div id="ts-status" class="turnstile-status">
+            <span class="spinner"></span>
+            <span id="ts-label">Loading security check…</span>
+          </div>
+          <div id="ts-widget"></div>
+          <button id="ts-retry" class="btn btn-ghost" style="display:none;font-size:0.8rem;padding:7px 16px">
+            ↺ Retry security check
+          </button>
+        </div>
+
+        <div class="login-divider">or</div>
+
+        <div class="login-actions">
+          <button id="discord-btn" class="btn btn-primary btn-lg" disabled>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/>
+            </svg>
+            Sign in with Discord
+          </button>
+          <button id="home-btn" class="btn btn-ghost">
+            ← Back to Website
+          </button>
         </div>
       </div>
     </div>
   `;
 
-  // FIX: Redirect to the main site provided
-  container.querySelector('#back-home-btn').addEventListener('click', () => {
+  /* ── DOM refs ────────────────────────────── */
+  const discordBtn = container.querySelector('#discord-btn');
+  const statusEl   = container.querySelector('#ts-status');
+  const labelEl    = container.querySelector('#ts-label');
+  const retryBtn   = container.querySelector('#ts-retry');
+
+  /* ── Actions ─────────────────────────────── */
+  container.querySelector('#home-btn').addEventListener('click', () => {
     window.location.href = 'https://nova-dc.netlify.app/';
   });
 
-  const button = container.querySelector('#discord-login-btn');
-  button.addEventListener('click', () => {
-    if (turnstileToken) window.location.href = buildDiscordLoginUrl(turnstileToken);
+  discordBtn.addEventListener('click', () => {
+    if (turnstileToken) {
+      discordBtn.disabled = true;
+      discordBtn.textContent = 'Redirecting…';
+      window.location.href = buildDiscordLoginUrl(turnstileToken);
+    }
   });
 
-  // Turnstile logic... (assumed standard from your file)
-  if (window.turnstile) {
-    window.turnstile.render('#turnstile-widget', {
-      sitekey: siteKey, theme: 'dark',
-      callback: (token) => {
-        turnstileToken = token;
-        button.disabled = false;
-        container.querySelector('#turnstile-status').textContent = 'Security check completed.';
+  retryBtn.addEventListener('click', () => {
+    retryBtn.style.display = 'none';
+    clearTimeout(timeoutHandle);
+    setStatus('loading', 'Retrying security check…');
+
+    if (widgetId !== null && window.turnstile) {
+      try { window.turnstile.reset(widgetId); } catch { /* ignore */ }
+    } else {
+      renderWidget();
+    }
+    armTimeout();
+  });
+
+  /* ── Status helpers ──────────────────────── */
+  function setStatus(type, text) {
+    statusEl.className = `turnstile-status${type === 'ready' ? ' is-ready' : type === 'error' ? ' is-error' : ''}`;
+    const spinnerHtml = type === 'loading' ? '<span class="spinner"></span>' : '';
+    const icon        = type === 'ready'   ? '✓ '                           :
+                        type === 'error'   ? '✕ '                           : '';
+    statusEl.innerHTML = `${spinnerHtml}<span>${icon}${escapeHtml(text)}</span>`;
+  }
+
+  /* ── Timeout guard ───────────────────────── */
+  function armTimeout() {
+    clearTimeout(timeoutHandle);
+    timeoutHandle = setTimeout(() => {
+      // Only fire if token was not yet obtained
+      if (!turnstileToken) {
+        setStatus('error', 'Security check timed out.');
+        retryBtn.style.display = 'inline-flex';
       }
-    });
+    }, TURNSTILE_TIMEOUT);
+  }
+
+  /* ── Render widget ───────────────────────── */
+  function renderWidget() {
+    const widgetContainer = container.querySelector('#ts-widget');
+    widgetContainer.innerHTML = ''; // clear any stale iframe
+
+    if (!window.turnstile) {
+      setStatus('error', 'Turnstile failed to load. Please refresh.');
+      retryBtn.style.display = 'inline-flex';
+      return;
+    }
+
+    try {
+      widgetId = window.turnstile.render('#ts-widget', {
+        sitekey:          siteKey,
+        theme:            'dark',
+        callback:         (token) => {
+          clearTimeout(timeoutHandle);
+          turnstileToken = token;
+          discordBtn.disabled = false;
+          retryBtn.style.display = 'none';
+          setStatus('ready', 'Security check passed — you\'re good to go!');
+        },
+        'error-callback': () => {
+          clearTimeout(timeoutHandle);
+          turnstileToken = null;
+          discordBtn.disabled = true;
+          setStatus('error', 'Security check failed.');
+          retryBtn.style.display = 'inline-flex';
+        },
+        'expired-callback': () => {
+          turnstileToken = null;
+          discordBtn.disabled = true;
+          setStatus('loading', 'Security token expired — refreshing…');
+          if (window.turnstile && widgetId !== null) {
+            try { window.turnstile.reset(widgetId); } catch { /* ignore */ }
+          }
+        },
+      });
+    } catch (err) {
+      setStatus('error', 'Could not initialize security check.');
+      retryBtn.style.display = 'inline-flex';
+      return;
+    }
+  }
+
+  /* ── Bootstrap ───────────────────────────── */
+  function init() {
+    setStatus('loading', 'Loading security check…');
+
+    if (window.turnstile) {
+      renderWidget();
+      armTimeout();
+    } else {
+      // Turnstile script not yet loaded — poll until ready
+      let polls = 0;
+      const iv = setInterval(() => {
+        polls++;
+        if (window.turnstile) {
+          clearInterval(iv);
+          renderWidget();
+          armTimeout();
+        } else if (polls >= 40) { // 4 s
+          clearInterval(iv);
+          setStatus('error', 'Security check could not be loaded.');
+          retryBtn.style.display = 'inline-flex';
+        }
+      }, 100);
+    }
+  }
+
+  init();
+
+  // Inject Turnstile script lazily if it wasn't in <head>
+  if (!document.querySelector('script[src*="turnstile"]')) {
+    const s = document.createElement('script');
+    s.src   = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+    s.async = true;
+    s.defer = true;
+    document.head.appendChild(s);
   }
 }
